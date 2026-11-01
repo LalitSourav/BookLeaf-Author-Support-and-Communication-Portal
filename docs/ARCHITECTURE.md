@@ -41,7 +41,14 @@ graph TD
     TicketSvc --> DB
 ```
 
-## 4. Security & Data Flow
+## 4. Security, AI Integration & Data Flow
 1. **Authentication:** Stateless JWT issued upon email/password login. Stored in client localStorage and sent via `Authorization: Bearer <token>` header.
 2. **Authorization (RBAC):** Middleware validates user role (`author` or `admin`). Authors can only access their own profile, books, and tickets. Admins have global access.
-3. **AI Guardrails & Graceful Degradation:** AI calls are wrapped in robust error handling. If the LLM service is down or rate-limited, tickets are still created with default fallback classification and priority, and admins can draft manual responses.
+3. **AI Service & Knowledge Base Integration (`aiService.js` & `bookleafKB.js`):**
+   - Utilizes Google Gen AI SDK (`@google/genai`) with model `gemini-3.5-flash`.
+   - Injects BookLeaf Knowledge Base context (80/20 royalty split, 45-day payout, 5-7 days printing turnaround, distribution partners) into system/prompt instructions.
+   - **Ticket Auto-Classification & Summarization:** Automatically categorizes incoming support queries into 6 valid categories, scores priority (Low/Medium/High/Critical), and generates a 1-sentence `ai_summary` stored in the `tickets` table.
+   - **Context-Aware Response Drafting:** Admins can click "Generate AI Response" on any ticket, injecting both KB policy rules and author database records (sales, royalties, book details) to draft empathetic, policy-compliant support replies.
+4. **Graceful Degradation:**
+   - If the LLM API fails, times out (>8s), hits rate limits, or API key is unconfigured, the system logs the warning and falls back to a robust rule-based intelligent classifier.
+   - **Important:** Ticket creation **succeeds** regardless of LLM availability, preventing author support disruption.

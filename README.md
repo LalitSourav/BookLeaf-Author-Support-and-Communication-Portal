@@ -1,13 +1,13 @@
 # BookLeaf Author Support & Communication Portal
 
 ## Project Overview
-The Author Support & Communication Portal is a full-stack web application built for BookLeaf Publishing to streamline author support operations across 22,000+ titles. It features an **Author Portal** for managing books, checking royalties, and tracking support tickets, and an **Admin Portal** featuring AI auto-classification, AI priority scoring, and Knowledge Base-backed AI response drafting.
+The Author Support & Communication Portal is a full-stack web application built for BookLeaf Publishing to streamline author support operations across 22,000+ titles. It features an **Author Portal** for managing books, checking royalties, and tracking support tickets, and an **Admin Portal** featuring Google Gemini AI auto-classification, priority scoring, `ai_summary` generation, and Knowledge Base-backed (`bookleafKB.js`) AI response drafting with robust graceful degradation.
 
 ## Technology Stack
 - **Frontend:** React, Vite, Tailwind CSS, Lucide Icons
 - **Backend:** Node.js, Express, JavaScript (ESM)
-- **Database:** MySQL (v8.0+) via `mysql2` parameterized queries
-- **AI Engine:** Anthropic Claude / OpenAI API
+- **Database:** MySQL (v8.0+) via `mysql2` parameterized queries (`authors`, `books`, `admins`, `tickets` with `ai_summary`, `ticket_messages`)
+- **AI Engine:** Google Gen AI SDK (`@google/genai`, model `gemini-3.5-flash`) with modular Knowledge Base context injection and rule-based graceful degradation fallback.
 
 ## Getting Started
 

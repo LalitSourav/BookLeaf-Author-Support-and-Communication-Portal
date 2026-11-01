@@ -1,6 +1,6 @@
 # Engineering Design Decisions & Interview Justifications — BookLeaf Portal
 
-This document maintains a step-by-step record of every major architectural, database, backend, frontend, and AI integration decision made during the development of the BookLeaf Author Support & Communication Portal. Each entry is structured to provide clear justifications, alternatives considered, trade-offs, and interview talking points to maximize evaluation scores.
+This document maintains a step-by-step record of every major architectural, database, backend, frontend, and AI integration decision made during the development of the BookLeaf Author Support & Communication Portal. Each entry is structured to provide clear justifications, alternatives considered, trade-offs, and interview talking points to maximize evaluation scores.bookl
 
 ## Decision 1: Database & Driver Selection — MySQL with `mysql2` (Raw SQL / Query Helper)
 
@@ -77,3 +77,39 @@ Implement near-real-time ticket updates using a clean polling interval in the ti
 
 ### **Interview Talking Point:**
 > *"To ensure near-real-time responsiveness without over-engineering WebSockets, we utilized a lightweight polling strategy in the ticket view. This guarantees that when an admin replies, the author sees the update within seconds without refreshing."*
+
+---
+
+## Decision 6: AI LLM Provider — Google Gemini (`gemini-2.5-flash`)
+...
+> *"We integrated Google Gemini (`gemini-2.5-flash`) using the official `@google/genai` SDK because it provides state-of-the-art LLM reasoning with high availability and zero friction. Combined with our robust graceful degradation layer, the system delivers intelligent, policy-accurate AI support features while remaining 100% testable and reliable under any network or API key constraint."*
+
+---
+
+## Decision 7: Cost Optimization via Modular Knowledge Base Snippet Injection
+
+### **Decision:** 
+Optimize LLM input token consumption by dynamically selecting and sending **only the relevant Knowledge Base policy chunk** (Royalty, Printing, Distribution, Profile & Tax, or ISBN & Metadata) instead of sending the entire 2,000-token Knowledge Base context on every request.
+
+### **Justification:**
+1. **Token Economy:** Sending the entire KB on every classification and response drafting call leads to redundant token expenditure and increased latency.
+2. **Targeted Prompting:** By filtering the KB using keyword matching (`royalty`, `isbn`, `print`, `distrib`, `metadata`, `profile`), the LLM receives highly focused context, resulting in faster inference times and higher reasoning accuracy.
+3. **Enhanced Context Selection:** Implemented intelligent KB section selection based on normalized ticket text and AI-classified categories to ensure maximum relevance.
+
+### **Interview Talking Point:**
+> *"To optimize token usage and reduce operational cost, we implemented modular KB snippet injection. Instead of bloating every prompt with the entire Knowledge Base, our system inspects the incoming ticket text and injects only the relevant policy section. This drastically cuts down input token count, lowers latency, and improves classification precision."*
+
+---
+
+## Decision 8: Graceful Error Handling & Resilient Ticket Creation
+
+### **Decision:** 
+Decouple AI ticket classification from database persistence. The ticket is immediately saved to MySQL, and AI classification runs independently. If the AI service fails or hits rate limits (429), ticket creation still succeeds successfully with robust rule-based fallback classification.
+
+### **Justification:**
+1. **Uninterrupted Operations:** Author support tickets must never fail to be created due to an external third-party LLM rate limit or network timeout.
+2. **Graceful Degradation (`ai_status` tracking):** Tracking `ai_status` (`success` or `fallback_used`) allows the admin portal to know whether the ticket was auto-classified by Gemini or via rule-based fallback, while keeping the system 100% operational.
+
+### **Interview Talking Point:**
+> *"We prioritized zero-downtime reliability by decoupling external LLM calls from core database transactions. Even if the AI API is unreachable or rate-limited, the ticket is safely persisted in MySQL immediately, and fallback classification ensures smooth continuity for both authors and administrators."*
+

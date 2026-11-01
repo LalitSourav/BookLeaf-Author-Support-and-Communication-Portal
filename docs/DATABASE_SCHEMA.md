@@ -54,8 +54,10 @@ erDiagram
         text description
         varchar category
         varchar priority
+        text ai_summary "Nullable"
         varchar status
         int assigned_admin_id FK "Nullable"
+        datetime author_last_viewed_at "Nullable"
         datetime created_at
         datetime updated_at
     }
@@ -133,8 +135,10 @@ CREATE TABLE IF NOT EXISTS tickets (
     description TEXT NOT NULL,
     category VARCHAR(100) DEFAULT 'General Inquiry',
     priority VARCHAR(50) DEFAULT 'Medium',
+    ai_summary TEXT NULL,
     status VARCHAR(50) DEFAULT 'Open',
     assigned_admin_id INT NULL,
+    author_last_viewed_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE,

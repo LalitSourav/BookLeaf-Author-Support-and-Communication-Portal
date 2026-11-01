@@ -27,16 +27,16 @@ All protected endpoints require the `Authorization` header:
 ### 3. Tickets
 - **GET `/tickets`**
   - **Auth:** Author (sees own tickets) or Admin (sees all tickets).
-  - **Query Params:** `status`, `category`, `priority`, `date`
-  - **Response:** List of tickets with messages.
+  - **Query Params:** `status`, `category`, `priority`, `search`
+  - **Response:** List of tickets with messages, last sender type, and author/book details.
 - **POST `/tickets`**
   - **Auth:** Author only
-  - **Body:** `{ "book_id": "string (optional)", "subject": "string", "description": "string" }`
-  - **Behavior:** Triggers AI service for auto-classification and priority scoring.
-  - **Response:** Created ticket object.
+  - **Body:** `{ "book_id": "number (optional)", "subject": "string", "description": "string" }`
+  - **Behavior:** Triggers Google Gemini AI service for auto-classification, priority scoring, and `ai_summary` generation. Includes graceful degradation fallback if AI is unavailable.
+  - **Response:** Created ticket object with `ai_summary`, `category`, and `priority`.
 - **GET `/tickets/:id`**
   - **Auth:** Author (if owner) or Admin.
-  - **Response:** Ticket details, associated book, and message thread.
+  - **Response:** Ticket details, associated book, message thread, and clears author unread notification (`author_last_viewed_at`).
 - **POST `/tickets/:id/messages`**
   - **Auth:** Author or Admin
   - **Body:** `{ "message": "string" }`
@@ -51,5 +51,5 @@ All protected endpoints require the `Authorization` header:
   - **Response:** Created internal note.
 - **POST `/tickets/:id/generate-response`**
   - **Auth:** Admin only
-  - **Behavior:** Invokes AI with ticket context and BookLeaf Knowledge Base to draft a response.
+  - **Behavior:** Invokes Google Gemini AI with ticket context, database records, and BookLeaf Knowledge Base (`bookleafKB.js`) to draft a policy-compliant response.
   - **Response:** `{ "draft_response": "..." }`
