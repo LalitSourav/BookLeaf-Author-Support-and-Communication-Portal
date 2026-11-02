@@ -44,11 +44,13 @@ graph TD
 ## 4. Security, AI Integration & Data Flow
 1. **Authentication:** Stateless JWT issued upon email/password login. Stored in client localStorage and sent via `Authorization: Bearer <token>` header.
 2. **Authorization (RBAC):** Middleware validates user role (`author` or `admin`). Authors can only access their own profile, books, and tickets. Admins have global access.
-3. **AI Service & Knowledge Base Integration (`aiService.js` & `bookleafKB.js`):**
+3. **AI Service & Knowledge Base Integration (`aiService.js`, `bookleafKB.js`, `ticketContextService.js`):**
    - Utilizes Google Gen AI SDK (`@google/genai`) with model `gemini-3.5-flash`.
-   - Injects BookLeaf Knowledge Base context (80/20 royalty split, 45-day payout, 5-7 days printing turnaround, distribution partners) into system/prompt instructions.
-   - **Ticket Auto-Classification & Summarization:** Automatically categorizes incoming support queries into 6 valid categories, scores priority (Low/Medium/High/Critical), and generates a 1-sentence `ai_summary` stored in the `tickets` table.
-   - **Context-Aware Response Drafting:** Admins can click "Generate AI Response" on any ticket, injecting both KB policy rules and author database records (sales, royalties, book details) to draft empathetic, policy-compliant support replies.
+   - **Scoring-Based KB Retrieval (`bookleafKB.js`):** `getKBSectionForQuery()` calculates relevance scores using regex phrase matching, weighted keywords (+4 high-priority, +3 phrases, +2 words), category alignment boosts (+6), and filters to top-3 sections, always including `communicationGuidelines`.
+   - **Category-Specific Database Context (`ticketContextService.js`):** `fetchAndBuildAuthorContext()` prepares structured data (specific book or catalog aggregate) and `selectAuthorContext()` filters only relevant fields (e.g., `royaltyAggregate` for royalty tickets, `distributionHealth` for distribution tickets). This prevents irrelevant data from being passed to Gemini.
+   - **Safe Financial Formatting (`aiService.js`):** `formatCurrency()` treats missing values as "Not available" (never zero). `buildAuthorDbSnippet()` constructs organized context blocks with anti-hallucination instructions.
+   - **Ticket Auto-Classification & Summarization:** Automatically categorizes incoming queries, scores priority, and generates `ai_summary`. Includes graceful fallback using rule-based classifier.
+   - **Context-Aware Response Drafting:** Admin endpoint injects KB policies + organized author DB records (sales, royalties, production stages, ISBN) to draft empathetic, accurate replies.
 4. **Graceful Degradation:**
    - If the LLM API fails, times out (>8s), hits rate limits, or API key is unconfigured, the system logs the warning and falls back to a robust rule-based intelligent classifier.
    - **Important:** Ticket creation **succeeds** regardless of LLM availability, preventing author support disruption.
