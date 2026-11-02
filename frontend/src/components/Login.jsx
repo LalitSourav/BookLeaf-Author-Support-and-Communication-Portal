@@ -118,11 +118,11 @@ export default function Login({ onLoginSuccess }) {
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             type="button"
-                            onClick={() => fillDemo('aaron.mitchell@bookleaf.com', 'Password@123')}
+                            onClick={() => fillDemo('arjun.malhotra@email.com', 'Password@123')}
                             className="p-3 bg-[#f5f4f0] hover:bg-[#e7e5e4]/60 border border-[#e7e5e4] rounded-lg text-left transition-all"
                         >
                             <span className="block text-xs font-semibold text-[#0f766e]">Author Demo</span>
-                            <span className="block text-[11px] text-[#57534e] truncate mt-0.5">Aaron Mitchell</span>
+                            <span className="block text-[11px] text-[#57534e] truncate mt-0.5">Arjun Malhotra</span>
                         </button>
                         <button
                             type="button"
