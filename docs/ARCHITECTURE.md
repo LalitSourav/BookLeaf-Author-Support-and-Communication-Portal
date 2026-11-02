@@ -9,7 +9,7 @@ The BookLeaf Author Support & Communication Portal is a full-stack web applicati
 - **Frontend:** React (Vite) + Tailwind CSS + Lucide Icons + React Router.
 - **Backend:** Node.js, Express.js, JavaScript (ES Modules).
 - **Database & Driver:** MySQL, `mysql2` (Parameterized Async SQL queries).
-- **AI Integration:** Anthropic Claude / OpenAI API with Knowledge Base context injection.
+- **AI Integration:** Google Gemini (`gemini-3.5-flash`) via official `@google/genai` SDK with strict Knowledge Base injection and graceful degradation fallback.
 
 ## 3. High-Level Architecture Diagram
 ```mermaid
@@ -23,12 +23,12 @@ graph TD
         API[REST API Routes]
         Auth[JWT Authentication & RBAC Middleware]
         TicketSvc[Ticket Management Service]
-        AISvc[AI Classification & Response Service]
+        AISvc[Google Gemini AI Service & KB Router]
     end
 
     subgraph External ["External Services & Database"]
         DB[(MySQL Database)]
-        LLM[Anthropic Claude / OpenAI API]
+        Gemini[Google Gemini API gemini-3.5-flash]
     end
 
     AP -->|HTTP / JWT| API
@@ -37,7 +37,7 @@ graph TD
     Auth --> TicketSvc
     Auth --> AISvc
     TicketSvc --> DB
-    AISvc --> LLM
+    AISvc --> Gemini
     TicketSvc --> DB
 ```
 
@@ -54,3 +54,50 @@ graph TD
 4. **Graceful Degradation:**
    - If the LLM API fails, times out (>8s), hits rate limits, or API key is unconfigured, the system logs the warning and falls back to a robust rule-based intelligent classifier.
    - **Important:** Ticket creation **succeeds** regardless of LLM availability, preventing author support disruption.
+
+## 5. Project Folder Structure
+```text
+bookleaf/
+├── backend/
+│   ├── src/
+│   │   ├── config/          # Database configuration (pool.js)
+│   │   ├── controllers/     # Route business logic (auth, author, ticket)
+│   │   ├── knowledgeBase/   # BookLeaf KB policies and guidelines
+│   │   ├── middleware/      # JWT verification & RBAC middleware
+│   │   ├── routes/          # Express API route definitions
+│   │   ├── services/        # AI service (Gemini) & context builder services
+│   │   ├── server.js        # Express app entry point
+│   │   └── seed.js          # Database seeder script
+│   └── package.json
+├── frontend/
+│   ├── public/              # Static assets & favicons
+│   ├── src/
+│   │   ├── components/      # React components (AuthorPortal, AdminPortal, Modals)
+│   │   ├── App.jsx          # Main root component & routing state
+│   │   ├── main.jsx         # React DOM mount point
+│   │   └── index.css        # Tailwind CSS imports & custom styles
+│   └── package.json
+└── docs/                    # Architecture, API & optimization documentation
+```
+
+## 6. System Data Flow
+1. **Author Ticket Creation & AI Auto-Classification Flow:**
+   - Author submits support query with subject, description, and optional book ID.
+   - Backend verifies book ownership, then calls **Google Gemini (`gemini-3.5-flash`)** with the query and Knowledge Base context.
+   - Gemini returns automated category, priority score, and summary (with rule-based graceful fallback if offline).
+   - Ticket and initial message are saved in MySQL transactionally; response returns to frontend with a 201 Created status.
+
+2. **Real-Time Polling & Unread Notification Dot Flow:**
+   - Client components (`AuthorPortal`, `TicketDetailModal`) poll backend endpoints via non-overlapping recursive `setTimeout` (6-second polling interval).
+   - `AuthorPortal` fetches `/api/tickets` which evaluates `is_unread` (checking if `author_last_viewed_at` is older than the latest admin message timestamp).
+   - If unread, a green notification dot (`bg-teal-600`) appears on the ticket item and Support Tickets tab badge.
+   - When the author clicks and opens the ticket (`getTicketById`), backend updates `author_last_viewed_at = NOW()`, instantly clearing the unread status on subsequent polls.
+
+## 7. Known Limitations & Future Improvements
+- **File Attachments:** Allow authors to upload PDFs, documents, and images with tickets and replies.
+- **Real-time Communication:** Replace polling with WebSockets or Server-Sent Events for instant message delivery and status updates.
+- **AI Monitoring:** Add token usage tracking, response quality evaluation, and cost monitoring for Google Gemini API calls.
+- **Performance:** Optimise database queries and introduce Redis caching where appropriate for high-volume catalogs.
+- **Security:** Strengthen token storage, input validation, rate limiting, and file access controls.
+- **Scalability:** Introduce background job queues (e.g., BullMQ) for email notifications and other time-consuming operations.
+
