@@ -151,9 +151,9 @@ export default function AuthorPortal({ user, token, onLogout }) {
         ? dashboardData.books
         : [];
 
-    // Check whether the latest ticket message came from admin
-    const hasAdminReply = tickets.some(
-        t => t.last_sender_type === 'admin'
+    // Check whether there are any unread tickets with admin replies
+    const hasUnreadTickets = tickets.some(
+        t => t.is_unread === 1
     );
 
     // Filter tickets by status
@@ -240,7 +240,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
                     >
                         Support Tickets ({stats.openTicketsCount || 0} Open)
 
-                        {hasAdminReply && (
+                        {hasUnreadTickets && (
                             <span className="w-2.5 h-2.5 rounded-full bg-teal-600 inline-block ml-1.5"></span>
                         )}
                     </button>
@@ -414,7 +414,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
                                                 key={t.id}
                                                 onClick={() => setSelectedTicketId(t.id)}
                                                 className={`p-3.5 bg-[#fcfbf9] hover:bg-[#f5f4f0] border rounded-lg cursor-pointer transition-all flex items-center justify-between ${
-                                                    t.last_sender_type === 'admin'
+                                                    t.is_unread === 1
                                                         ? 'border-teal-500 bg-teal-50/30 ring-1 ring-teal-400/50'
                                                         : 'border-[#e7e5e4]'
                                                 }`}
@@ -433,7 +433,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
                                                             {t.status}
                                                         </span>
 
-                                                        {t.last_sender_type === 'admin' && (
+                                                        {t.is_unread === 1 && (
                                                             <span className="w-2 h-2 rounded-full bg-teal-600 inline-block"></span>
                                                         )}
                                                     </div>
@@ -567,7 +567,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
                                         key={t.id}
                                         onClick={() => setSelectedTicketId(t.id)}
                                         className={`p-4 bg-[#fcfbf9] hover:bg-[#f5f4f0] border rounded-xl cursor-pointer transition-all flex items-center justify-between ${
-                                            t.last_sender_type === 'admin'
+                                            t.is_unread === 1
                                                 ? 'border-teal-500 bg-teal-50/30 ring-1 ring-teal-400/50'
                                                 : 'border-[#e7e5e4]'
                                         }`}
@@ -590,7 +590,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
                                                     {t.category}
                                                 </span>
 
-                                                {t.last_sender_type === 'admin' && (
+                                                {t.is_unread === 1 && (
                                                     <span className="w-2 h-2 rounded-full bg-teal-600 inline-block"></span>
                                                 )}
                                             </div>

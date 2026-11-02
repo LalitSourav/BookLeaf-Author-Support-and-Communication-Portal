@@ -13,9 +13,8 @@ export const getTickets = async (req, res) => {
             CASE
                 WHEN ? = 'author' AND (SELECT tm.sender_type FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal_note = FALSE ORDER BY tm.created_at DESC LIMIT 1) = 'admin'
                  AND (t.author_last_viewed_at IS NULL OR t.author_last_viewed_at < (SELECT MAX(tm.created_at) FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.sender_type = 'admin' AND tm.is_internal_note = FALSE))
-                THEN 'admin'
-                ELSE (SELECT tm.sender_type FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal_note = FALSE ORDER BY tm.created_at DESC LIMIT 1)
-            END as last_sender_type
+                THEN 1 ELSE 0
+            END as is_unread
             FROM tickets t
             JOIN authors a ON t.author_id = a.id
             LEFT JOIN books b ON t.book_id = b.id

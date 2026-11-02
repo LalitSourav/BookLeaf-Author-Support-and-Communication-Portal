@@ -10,15 +10,41 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
+
+const dbHost = process.env.DB_HOST || 'localhost';
+
+const dbConfig = {
+    host: dbHost,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'bookleaf_db',
-    port: process.env.DB_PORT || 3306,
+    port: Number(process.env.DB_PORT) || 3306,
     waitForConnections: true,
     connectionLimit: 5
-});
+};
+
+const isLocalDatabase = ['localhost', '127.0.0.1'].includes(
+    dbHost.toLowerCase()
+);
+
+if (!isLocalDatabase) {
+    const caPath = path.join(__dirname, '../certs/tidb-ca.pem');
+
+    if (!fs.existsSync(caPath)) {
+        throw new Error(`CA certificate not found: ${caPath}`);
+    }
+
+    dbConfig.ssl = {
+        ca: fs.readFileSync(caPath),
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
+    };
+}
+
+console.log('Database host:', dbHost);
+console.log('SSL enabled:', Boolean(dbConfig.ssl));
+
+const pool = mysql.createPool(dbConfig);
 
 async function seedDatabase() {
     try {

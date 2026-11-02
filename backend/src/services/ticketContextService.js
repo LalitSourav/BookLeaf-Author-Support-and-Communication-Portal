@@ -118,9 +118,9 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
     }
 
 
-    // ---------------------------------------------
+   
     // 2. Initialize common context
-    // ---------------------------------------------
+
 
     const normalizedTicketText =
         `${ticket.subject || ''} ${ticket.description || ''}`
@@ -151,9 +151,9 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
     };
 
 
-    // ---------------------------------------------
+    
     // 3. Build context for a specific book
-    // ---------------------------------------------
+ 
 
     if (hasBookId && selectedBookForContext) {
 
@@ -252,19 +252,16 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
     }
 
 
-    // ---------------------------------------------
-    // 4. Build author-level context when no book
-    //    is specifically selected
-    // ---------------------------------------------
+    
+    // 4. Build author-level context when no book is specifically selected
+    
 
     else if (!hasBookId) {
 
         switch (ticket.category) {
 
 
-            // -------------------------------------
             // Royalty & Payments
-            // -------------------------------------
 
             case 'Royalty & Payments': {
 
@@ -345,9 +342,8 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
             }
 
 
-            // -------------------------------------
+            
             // Printing & Quality
-            // -------------------------------------
 
             case 'Printing & Quality': {
 
@@ -380,9 +376,7 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
             }
 
 
-            // -------------------------------------
             // Distribution & Availability
-            // -------------------------------------
 
             case 'Distribution & Availability': {
 
@@ -425,9 +419,7 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
             }
 
 
-            // -------------------------------------
             // ISBN & Metadata Issues
-            // -------------------------------------
 
             case 'ISBN & Metadata Issues': {
 
@@ -452,9 +444,7 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
             }
 
 
-            // -------------------------------------
             // Book Status & Production Updates
-            // -------------------------------------
 
             case 'Book Status & Production Updates': {
 
@@ -484,9 +474,7 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
             }
 
 
-            // -------------------------------------
             // General Inquiry
-            // -------------------------------------
 
             default: {
 
@@ -519,9 +507,7 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
     }
 
 
-    // ---------------------------------------------
     // 5. Return only category-relevant context
-    // ---------------------------------------------
 
     return selectAuthorContext(
         context,
