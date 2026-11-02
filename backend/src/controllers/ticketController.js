@@ -11,15 +11,10 @@ export const getTickets = async (req, res) => {
         let query = `
             SELECT t.*, a.name as author_name, a.email as author_email, b.title as book_title, ad.name as admin_name,
             CASE
-                WHEN ? = 'author' THEN
-                    CASE
-                        WHEN (SELECT tm.sender_type FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal_note = FALSE ORDER BY tm.created_at DESC LIMIT 1) = 'admin'
-                         AND (t.author_last_viewed_at IS NULL OR t.author_last_viewed_at < (SELECT MAX(tm.created_at) FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.sender_type = 'admin' AND tm.is_internal_note = FALSE))
-                        THEN 'admin'
-                        ELSE 'author'
-                    END
-                ELSE
-                    (SELECT tm.sender_type FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal_note = FALSE ORDER BY tm.created_at DESC LIMIT 1)
+                WHEN ? = 'author' AND (SELECT tm.sender_type FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal_note = FALSE ORDER BY tm.created_at DESC LIMIT 1) = 'admin'
+                 AND (t.author_last_viewed_at IS NULL OR t.author_last_viewed_at < (SELECT MAX(tm.created_at) FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.sender_type = 'admin' AND tm.is_internal_note = FALSE))
+                THEN 'admin'
+                ELSE (SELECT tm.sender_type FROM ticket_messages tm WHERE tm.ticket_id = t.id AND tm.is_internal_note = FALSE ORDER BY tm.created_at DESC LIMIT 1)
             END as last_sender_type
             FROM tickets t
             JOIN authors a ON t.author_id = a.id
