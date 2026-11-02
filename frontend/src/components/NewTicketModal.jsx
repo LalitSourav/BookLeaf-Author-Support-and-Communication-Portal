@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Send } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 export default function NewTicketModal({
     books = [],
@@ -60,7 +61,7 @@ export default function NewTicketModal({
         setSubmitting(true);
 
         try {
-            const res = await fetch('/api/tickets', {
+            const res = await fetch(`${API_BASE_URL}/tickets`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

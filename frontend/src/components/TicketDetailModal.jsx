@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Send, Sparkles, Shield, User } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 export default function TicketDetailModal({
     ticketId,
@@ -27,7 +28,7 @@ export default function TicketDetailModal({
     // Fetch ticket details
     const fetchTicketDetails = useCallback(async (signal) => {
         try {
-            const res = await fetch(`/api/tickets/${ticketId}`, {
+            const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },
@@ -110,7 +111,7 @@ export default function TicketDetailModal({
         setError(null);
 
         try {
-            const res = await fetch(`/api/tickets/${ticketId}/messages`, {
+            const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -154,7 +155,7 @@ export default function TicketDetailModal({
         setError(null);
 
         try {
-            const res = await fetch(`/api/tickets/${ticketId}/ai-draft`, {
+            const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/ai-draft`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -213,7 +214,7 @@ export default function TicketDetailModal({
         setPriority(targetPriority);
 
         try {
-            const res = await fetch(`/api/tickets/${ticketId}`, {
+            const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

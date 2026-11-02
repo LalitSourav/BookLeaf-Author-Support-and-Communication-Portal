@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Shield, User, Lock, ArrowRight, Sparkles } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 export default function Login({ onLoginSuccess }) {
     const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export default function Login({ onLoginSuccess }) {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/auth/login', {
+            const res = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })

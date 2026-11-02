@@ -11,6 +11,8 @@ import {
 
 import TicketDetailModal from './TicketDetailModal.jsx';
 import NewTicketModal from './NewTicketModal.jsx';
+import { API_BASE_URL } from '../config/api';
+
 
 export default function AuthorPortal({ user, token, onLogout }) {
     const [dashboardData, setDashboardData] = useState(null);
@@ -39,7 +41,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
         // Fetch Author Dashboard
         const fetchDashboard = async () => {
             try {
-                const res = await fetch('/api/authors/dashboard', {
+                const res = await fetch(`${API_BASE_URL}/authors/dashboard`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     },
@@ -73,7 +75,7 @@ export default function AuthorPortal({ user, token, onLogout }) {
         // Fetch Author Tickets
         const fetchTickets = async () => {
             try {
-                const res = await fetch('/api/tickets', {
+                const res = await fetch(`${API_BASE_URL}/tickets`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     },

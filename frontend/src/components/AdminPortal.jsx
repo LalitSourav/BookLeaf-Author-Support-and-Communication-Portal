@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, LogOut, Search } from 'lucide-react';
 import TicketDetailModal from './TicketDetailModal.jsx';
+import { API_BASE_URL } from '../config/api';
 
 export default function AdminPortal({ user, token, onLogout }) {
     const [dashboardData, setDashboardData] = useState(null);
@@ -28,7 +29,7 @@ export default function AdminPortal({ user, token, onLogout }) {
     // Fetch Admin Dashboard
     const fetchAdminData = async (signal) => {
         try {
-            const res = await fetch('/api/admin/dashboard', {
+            const res = await fetch(`${API_BASE_URL}/admin/dashboard`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },
@@ -80,7 +81,7 @@ export default function AdminPortal({ user, token, onLogout }) {
             const queryString = params.toString();
 
             const res = await fetch(
-                `/api/tickets${queryString ? `?${queryString}` : ''}`,
+                    `${API_BASE_URL}/tickets${queryString ? `?${queryString}` : ''}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -114,7 +115,7 @@ export default function AdminPortal({ user, token, onLogout }) {
     const fetchAuthorsAndBooks = async (signal) => {
         // Fetch authors independently
         try {
-            const authorsRes = await fetch('/api/admin/authors', {
+            const authorsRes = await fetch(`${API_BASE_URL}/admin/authors`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },
@@ -141,7 +142,7 @@ export default function AdminPortal({ user, token, onLogout }) {
 
         // Fetch books independently
         try {
-            const booksRes = await fetch('/api/admin/books', {
+            const booksRes = await fetch(`${API_BASE_URL}/admin/books`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },
