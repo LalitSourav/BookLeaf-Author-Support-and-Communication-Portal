@@ -49,9 +49,7 @@ export const fetchAndBuildAuthorContext = async (ticket) => {
         ticket.book_id !== undefined &&
         ticket.book_id !== '';
 
-    // ---------------------------------------------
     // 1. Fetch specific book or author's book catalog
-    // ---------------------------------------------
 
     if (hasBookId) {
 
